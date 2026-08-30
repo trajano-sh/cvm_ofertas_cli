@@ -1,29 +1,47 @@
 from typing import Dict, Any, List
+from rich.console import Console
+from rich.table import Table
+from rich.align import Align
 
-def format_offers_table(data: Dict[str, Any]) -> None:
-    offers: List[Dict[str, Any]] = data.get("registros", [])
-    if not offers:
-        print("\nNenhuma oferta encontrada para o período informado.\n")
+from rich.console import Console
+from rich.table import Table
+
+from rich.console import Console
+from rich.table import Table
+from rich.align import Align
+
+def cell(text: str, align: str = "left") -> Align:
+    """Retorna o texto centralizado verticalmente e com o alinhamento horizontal desejado."""
+    return Align(str(text), align=align, vertical="middle")
+
+def print_rich_table(data: dict):
+    console = Console()
+    table = Table(title="Ofertas CVM", show_lines=True)
+
+    # Definição das colunas
+    table.add_column("ID", justify="center", no_wrap=True)
+    table.add_column("Emissor", justify="left")
+    table.add_column("Valor (R$)", justify="right")
+    table.add_column("Situação", justify="center")
+    table.add_column("Tipo", justify="left")
+    table.add_column("Tipo Requerimento", justify="left")
+
+    registros = data.get("registros", [])
+    if not registros:
+        console.print("[yellow]Nenhum registro encontrado.[/yellow]")
         return
 
-    total_registros = data.get("totalRegistros", len(offers))
-    print(f"\nTotal de registros encontrados: {total_registros}")
-    print("-" * 180)
-    print(f"{'ID':<8} | {'EMISSOR':<35} | {'VALOR (R$)':<15} | {'SITUAÇÃO':20} | {'TIPO':15} | {'TIPO REQUERIMENTO':30}")
-    print("-" * 180)
+    for item in registros:
+        table.add_row(
+            cell(item.get("idRequerimento", "N/A"), align="center"),
+            cell(item.get("nomeEmissor", "N/A"), align="left"),
+            cell(item.get("valorTotalEmReais", "N/A"), align="right"),
+            cell(item.get("statusDaOferta", "N/A"), align="center"),
+            cell(item.get("nomeValorMobiliario", "N/A"), align="left"),
+            cell(item.get("nomeTipoRequerimento", "N/A"), align="left")
+        )
 
-    for item in offers:
-        offer_id = str(item.get("idRequerimento", "N/A"))
-        emissor = str(item.get("nomeEmissor", "Não informado"))[:33]
-        
-        raw_valor = item.get("valorTotalEmReais", "0")
-        valor = parse_brl_to_float(raw_valor)
-        
-        situacao = str(item.get("statusDaOferta", "N/A"))[:20]
-        tipo = str(item.get("nomeValorMobiliario", "N/A"))[:15]
-        qualifiquedOrProfessional = str(item.get("nomeTipoRequerimento"))
-        print(f"{offer_id:<8} | {emissor:<35} | {valor:>15,.2f} | {situacao:<20} | {tipo:<15} | {qualifiquedOrProfessional:<30}")
-    print("-" * 180 + "\n")
+    console.print(table)
 
 def parse_brl_to_float(val_str: str) -> float:
     if not val_str or not isinstance(val_str, str):

@@ -7,7 +7,9 @@ def main():
     i = int(input("$ "))
     while True:
         if i == 1:
-            formatted.format_offers_table(list_all_offers("01/01/2025","02/01/2025"))
+            i3 = input("Inicio (01/01/2022): ")
+            i4 = input("Final (01/01/2022): ")
+            formatted.print_rich_table(list_all_offers(i3,i4))
             i2 = input("Abrir oferta: ")
             formatted.format_get_offer(get_offer(i2),i2)
             break
