@@ -15,7 +15,7 @@ def format_offers_table(data: Dict[str, Any]) -> None:
     for item in offers:
         offer_id = str(item.get("idRequerimento", "N/A"))
         emissor = str(item.get("nomeEmissor", "Não informado"))[:33] # trunca se for longo
-        valor = item.get("valorTotalEmReais", 0.0) or 0.0
+        valor = str(item.get("valorTotalEmReais", "0,00"))
         situacao = item.get("statusDaOferta", "N/A")
 
         print(f"{offer_id:<10} | {emissor:<35} | {valor:>12,.2f} | {situacao}")
