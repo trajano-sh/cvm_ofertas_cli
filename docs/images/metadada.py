@@ -10,22 +10,20 @@ def clear_all_logs():
     for root, files, archives in os.walk(file_current):
         for archive in archives:
             if archive.lower().endswith('.png'):
-                caminho_completo = os.path.join(root, archive)
+                full_path = os.path.join(root, archive)
 
                 try:
-                    with Image.open(caminho_completo) as img:
+                    with Image.open(full_path) as img:
                         image_clean = Image.new(img.mode, img.size)
                         image_clean.putdata(list(img.getdata()))
 
-                        image_clean.save(caminho_completo, format="PNG")
+                        image_clean.save(full_path, format="PNG")
 
-                    print(f"[OK] Remove : {caminho_completo}")
-                    contador += 1
+                    print(f"[OK] Remove : {full_path}")
+                    count += 1
                 except Exception as e:
-                    print(f"[ERRO] Falha ao processar {caminho_completo}: {e}")
-
-    print(f"\nProcesso concluído! Total de PNGs limpos: {contador}")
+                    print(f"[ERRO] Fail in process {full_path}: {e}")
 
 
 if __name__ == "__main__":
-    limpar_todos_pngs()
+    clear_all_logs()

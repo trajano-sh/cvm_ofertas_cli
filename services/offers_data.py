@@ -12,12 +12,19 @@ def load_offers() -> list[dict]:
         return list(reader)
 
 
-def find_by_issuer(name: str) -> list[dict]:
-    console_ok("Finding offers by issuer")
+def find_by_issuer(query: str) -> list[dict]:
+    console_ok(f"Searching offers for: {query}")
     offers = load_offers()
     result = []
+
+    target_columns = ["Nome_Emissor", "Numero_Requerimento", "Numero_Processo", "CNPJ_Emissor","CNPJ_Lider","Nome_Lider","Destinacao_recursos","Ativos_alvo","Administrador","Gestor","Agente_fiduciario","Escriturador",""]
+    query_lower = query.lower()
+
     for offer in offers:
-        issuer = offer.get("Nome_Emissor") or ""
-        if name.lower() in issuer.lower():
-            result.append(offer)
+        for col in target_columns:
+            val = offer.get(col)
+            if val and query_lower in str(val).lower():
+                result.append(offer)
+                break
+
     return result

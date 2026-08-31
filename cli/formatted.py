@@ -13,9 +13,9 @@ console = Console()
 def cell(text: str, align: str = "left") -> Align:
     return Align(str(text), align=align, vertical="middle")
 
-def print_rich_table(data: dict):
+def print_rich_table(data: dict,dt_start:str,dt_end:str):
     console = Console()
-    table = Table(title="Ofertas CVM", show_lines=True)
+    table = Table(title=f"Ofertas CVM {dt_start} - {dt_end}", show_lines=True)
 
     table.add_column("ID", justify="center", no_wrap=True)
     table.add_column("Emissor", justify="left")
