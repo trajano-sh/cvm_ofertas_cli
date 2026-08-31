@@ -48,8 +48,10 @@ def list_all_offers(
 ) -> Dict[str, Any]:
     url = f"{URL_BASE}/detalhado"
     body = payload_json(date_start=date_start, date_end=date_end, page=page, size_page=size_page)
-    
+
+    print("Connecting...")
     response = requests.post(url=url, json=body, headers=HEADERS, timeout=30)
+
     response.raise_for_status()
     return response.json()
 

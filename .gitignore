@@ -14,7 +14,7 @@ venv.bak/
 .env.local
 .env.*.local
 *.env
-
+.~lock.*
 .vscode/
 .idea/
 *.sublime-project

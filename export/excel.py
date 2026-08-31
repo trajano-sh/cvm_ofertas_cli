@@ -55,7 +55,7 @@ def export_csv_offers(data: dict):
         if offer_id:
             current_row = sheet.max_row
             link_cell = sheet[f"N{current_row}"]
-            link_cell.hyperlink = f"https://web.cvm.gov.br/sre-publico-cvm/#/oferta-publica/{offer_id}"
+            link_cell.hyperlink = url
             link_cell.font = link_font
             link_cell.alignment = Alignment(horizontal="center", vertical="center")
     total_ofertas = len(registros)
