@@ -1,0 +1,19 @@
+{
+  "paths": {
+    "banner": "banner.txt",
+    "csv_file": "database/oferta_resolucao_160.csv"
+  },
+  "api": {
+    "base_url": "https://web.cvm.gov.br/sre-publico-cvm/rest/sitePublico/pesquisar",
+    "detailed_endpoint": "/detalhado",
+    "general_info_endpoint": "/informacoesGerais",
+    "offer_url": "https://web.cvm.gov.br/sre-publico-cvm/#/oferta-publica/"
+  },
+  "data_source": {
+    "zip_url": "https://dados.cvm.gov.br/dados/OFERTA/DISTRIB/DADOS/oferta_distribuicao.zip",
+    "zip_filename": "oferta_distribuicao.zip"
+  },
+  "defaults": {
+    "page_size": 20
+  }
+}

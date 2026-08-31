@@ -2,13 +2,11 @@ from typing import Dict, Any, List
 from rich.console import Console
 from rich.table import Table
 from rich.align import Align
-
 from rich.console import Console
 from rich.table import Table
 
-from rich.console import Console
-from rich.table import Table
-from rich.align import Align
+from config.config import OFFER_URL
+from utils.utils import console_ok
 
 console = Console()
 
@@ -19,7 +17,6 @@ def print_rich_table(data: dict):
     console = Console()
     table = Table(title="Ofertas CVM", show_lines=True)
 
-    # Definição das colunas
     table.add_column("ID", justify="center", no_wrap=True)
     table.add_column("Emissor", justify="left")
     table.add_column("Valor (R$)", justify="right")
@@ -53,12 +50,25 @@ def parse_brl_to_float(val_str: str) -> float:
     except ValueError:
         return 0.0
 
-def format_get_offer(data: Dict[str, Any],id:int) -> None:
-    print(f"Processo: {data.get("numeroProcesso")}")
-    print(f"Tipo de Oferta: {data.get("nomeValorMobiliario")}")
-    print(f"Valor: {data.get("valorTotal")}")
-    print(f"Data: {data.get("data")}")
-    print(f"link: https://web.cvm.gov.br/sre-publico-cvm/#/oferta-publica/{id}")
+def format_get_offer(data: Dict[str, Any],ID:int) -> None:
+    table = Table(title="Ofertas CVM", show_lines=True,show_header=False)
+
+    table.add_column("Campo",justify="left")
+    table.add_column("Valor",justify="left")
+
+    table.add_row(
+        Align.center("[bold yellow]PARÂMETRO[/bold yellow]"),
+        Align.center("[bold yellow]VALOR[/bold yellow]"),
+        end_section=True
+    )
+    table.add_row("Processo",f"{data.get("numeroProcesso")}")
+    table.add_row("Tipo de oferta",f"{data.get("nomeValorMobiliario")}")
+    table.add_row("Valor",f"{data.get("valorTotal")}")
+    table.add_row("Data",f"{data.get("data")}")
+    table.add_row("Link",f"{OFFER_URL}{ID}")
+    console.print(table)
+    console_ok("Offert found")
+    input("Pressione Enter para continuar...")
 
 def print_offers_table(offers: list[dict]) -> None:
     table = Table(title="Ofertas CVM")
