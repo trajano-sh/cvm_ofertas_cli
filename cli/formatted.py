@@ -11,7 +11,6 @@ from rich.table import Table
 from rich.align import Align
 
 def cell(text: str, align: str = "left") -> Align:
-    """Retorna o texto centralizado verticalmente e com o alinhamento horizontal desejado."""
     return Align(str(text), align=align, vertical="middle")
 
 def print_rich_table(data: dict):
