@@ -1,0 +1,6 @@
+inquirerpy~=0.3.4
+rich~=15.0.0
+dotenv~=0.9.9
+python-dotenv~=1.2.3
+openpyxl~=3.1.5
+requests~=2.34.2
