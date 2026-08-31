@@ -1,6 +1,6 @@
 from InquirerPy import inquirer
 
-from cli.menu import menu
+from cli.menu import show_menu
 from export.excel import export_csv_offers
 from api.endpoints import list_all_offers, get_offer
 from cli import formatted
@@ -9,10 +9,10 @@ from export.excel import export_csv_offers
 
 def main():
     while True:
-        menu()
-        choice = int(input("Escolha uma opcao: "))
+        show_menu()
+        choice = int(input("Escolha uma opção: "))
         if choice == 0:
-            print("Goodbye")
+            print("Goodbye!")
             break
         elif choice == 1:
             i3 = input("Inicio: ")
@@ -28,7 +28,6 @@ def main():
         elif choice == 2:
             i2 = input("Abrir oferta: ")
             formatted.format_get_offer(get_offer(i2), i2)
-
 
 if __name__ == "__main__":
     main()

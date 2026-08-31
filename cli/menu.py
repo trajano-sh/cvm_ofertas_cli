@@ -4,10 +4,12 @@ from utils.utils import banner
 
 console = Console()
 
-def menu():
+def show_menu():
     print(banner())
-    menu=f"""
-1) Filtrar por periodo
-2) Abrir por id
-0) Exit"""
-    print(menu)
+    options = """
+1) Filtrar por período
+2) Abrir por ID
+3) Pesquisa detalhada
+0) Sair
+"""
+    print(options)
