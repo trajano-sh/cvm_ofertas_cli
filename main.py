@@ -5,7 +5,7 @@ from export.excel import export_csv_offers
 from api.endpoints import list_all_offers, get_offer
 from cli import formatted
 from export.excel import export_csv_offers
-
+from services.offers_data import find_by_issuer
 
 def main():
     while True:
@@ -28,6 +28,10 @@ def main():
         elif choice == 2:
             i2 = input("Abrir oferta: ")
             formatted.format_get_offer(get_offer(i2), i2)
+        elif choice == 3:
+            search = input("Digite oque deseja procurar: ")
+            formatted.print_offers_table(find_by_issuer(search))
+            break
 
 if __name__ == "__main__":
     main()

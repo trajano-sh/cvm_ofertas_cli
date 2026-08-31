@@ -10,6 +10,8 @@ from rich.console import Console
 from rich.table import Table
 from rich.align import Align
 
+console = Console()
+
 def cell(text: str, align: str = "left") -> Align:
     return Align(str(text), align=align, vertical="middle")
 
@@ -57,3 +59,24 @@ def format_get_offer(data: Dict[str, Any],id:int) -> None:
     print(f"Valor: {data.get("valorTotal")}")
     print(f"Data: {data.get("data")}")
     print(f"link: https://web.cvm.gov.br/sre-publico-cvm/#/oferta-publica/{id}")
+
+def print_offers_table(offers: list[dict]) -> None:
+    table = Table(title="Ofertas CVM")
+
+    table.add_column("ID", justify="center", no_wrap=True)
+    table.add_column("Emissor")
+    table.add_column("CNPJ")
+    table.add_column("Tipo")
+    table.add_column("Valor")
+    table.add_column("Data")
+    for offer in offers:
+        table.add_row(
+            offer.get("Numero_Requerimento", "N/A"),
+            offer.get("Nome_Emissor", "N/A"),
+            offer.get("CNPJ_Emissor", "N/A"),
+            offer.get("Tipo_Oferta", "N/A"),
+            offer.get("Valor_Total_Registrado", "N/A"),
+            offer.get("Data_requerimento", "N/A"),
+        )
+
+    console.print(table)
