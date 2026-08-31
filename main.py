@@ -1,52 +1,74 @@
-from pygments import formatter
+from __future__ import annotations
 
+import requests
+from zipfile import BadZipFile
+
+from api.endpoints import CVMApiError, get_offer, list_all_offers
+from cli.formatted import format_get_offer, print_offers_table, print_rich_table
 from cli.menu import show_menu
+from config.config import CSV_FILE
 from export.excel import export_csv_offers
-from api.endpoints import list_all_offers, get_offer
-from cli.formatted import print_offers_table,print_rich_table,format_get_offer
-from export.excel import export_csv_offers
+from scripts.fetch_data import ensure_data_file
 from services.offers_data import find_by_issuer
-from utils.utils import clear, console_warn
+from utils.utils import clear, console_error, console_warn
+
+YES = {"s", "sim"}
 
 
-def main():
+def _open_offer(offer_id: str) -> None:
+    if offer_id.strip():
+        format_get_offer(get_offer(offer_id), offer_id)
+        input("Pressione Enter para continuar...")
+
+
+def _filter_by_period() -> None:
+    date_start = input("Início (DD/MM/AAAA, vazio = últimos 30 dias): ").strip()
+    date_end = input("Final (DD/MM/AAAA, vazio = hoje): ").strip()
+    data = list_all_offers(date_start, date_end)
+    if not print_rich_table(data, date_start, date_end):
+        return
+    if input("Deseja exportar o arquivo? (S/N): ").strip().casefold() in YES:
+        export_csv_offers(data)
+    _open_offer(input("Digite um ID para abrir ou Enter para voltar: "))
+
+
+def _detailed_search() -> None:
+    console_warn("Valores atualizados até o último dia útil.")
+    try:
+        ensure_data_file()
+    except (requests.RequestException, OSError, BadZipFile) as error:
+        if not CSV_FILE.is_file():
+            raise
+        console_warn(f"Não foi possível atualizar a base; usando o arquivo local. Motivo: {error}")
+    query = input("Digite o que deseja procurar: ")
+    print_offers_table(find_by_issuer(query))
+
+
+def main() -> None:
+    actions = {
+        "1": _filter_by_period,
+        "2": lambda: _open_offer(input("ID da oferta: ")),
+        "3": _detailed_search,
+    }
     while True:
         show_menu()
-        choice = str(input("Escolha uma opção: "))
+        choice = input("Escolha uma opção: ").strip()
         if choice == "0":
-            print("Goodbye!")
-            break
-
-        elif choice == "1":
-            i3 = input("Inicio: ")
-            i4 = input("Final: ")
-            date = list_all_offers(i3, i4)
-            print_rich_table(date,i3,i4)
-            i1 = input("Deseja exportar o arquivo? (S/N): ")
-
-            if i1.lower() == "s" or i1.lower() == "sim".lower():
-                export_csv_offers(date)
-
-            elif i1.lower() == "n" or i1.lower() == "nao".lower():
-                pass
-            i2 = input("Digite um id para abrir: ")
-            if i2.strip() == "":
-                continue
-            format_get_offer(get_offer(i2),i2)
-
-        elif choice == "2":
-            i2 = str(input("Abrir oferta: "))
-            format_get_offer(get_offer(i2),i2)
-
-        elif choice == "3":
-            console_warn("\nValores atualizados até o último dia útil\n")
-
-            search = input("Digite oque deseja procurar: ")
-            print_offers_table(find_by_issuer(search))
-            break
-        else:
+            print("Até logo!")
+            return
+        action = actions.get(choice)
+        if action is None:
             clear()
-            print("Option invalid")
+            console_warn("Opção inválida.")
+            continue
+        try:
+            action()
+        except (CVMApiError, ValueError, OSError, BadZipFile, requests.RequestException) as error:
+            console_error(str(error))
+
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print("\nOperação cancelada.")

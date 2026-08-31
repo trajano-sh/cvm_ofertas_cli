@@ -1,34 +1,66 @@
+from __future__ import annotations
+
+from datetime import date, datetime
 from pathlib import Path
-from zipfile import ZipFile
+from shutil import copyfileobj
+from zipfile import BadZipFile, ZipFile
 
 import requests
 
-from config.config import ZIP_URL, ZIP_FILENAME, ROOT_DIR
+from config.config import CSV_FILE, ZIP_FILENAME, ZIP_URL
 from utils.utils import console_ok
 
-URL = ZIP_URL
+DATA_DIR = CSV_FILE.parent
+DOWNLOAD_TIMEOUT = (5, 120)
 
-DATA_DIR = ROOT_DIR / "database"
-DATA_DIR.mkdir(exist_ok=True)
+
+def _is_current(path: Path) -> bool:
+    return path.is_file() and path.stat().st_size > 0 and datetime.fromtimestamp(path.stat().st_mtime).date() == date.today()
 
 
 def download_file(url: str, filename: str) -> Path:
-    console_ok("Downloading file...")
+    console_ok("Baixando base de dados...")
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     destination = DATA_DIR / filename
-    response = requests.get(url, timeout=60)
-    response.raise_for_status()
-    destination.write_bytes(response.content)
+    temporary = destination.with_suffix(f"{destination.suffix}.part")
+    try:
+        with requests.get(url, stream=True, timeout=DOWNLOAD_TIMEOUT) as response:
+            response.raise_for_status()
+            with temporary.open("wb") as output:
+                for chunk in response.iter_content(chunk_size=1024 * 1024):
+                    if chunk:
+                        output.write(chunk)
+        temporary.replace(destination)
+    except Exception:
+        temporary.unlink(missing_ok=True)
+        raise
     return destination
 
 
 def extract_zip_file(zip_path: Path, filename: str) -> Path:
-    console_ok("Extracting file...")
-    with ZipFile(zip_path, "r") as zip_ref:
-        zip_ref.extract(filename, DATA_DIR)
-    return DATA_DIR / filename
+    console_ok("Extraindo base de dados...")
+    destination = DATA_DIR / Path(filename).name
+    temporary = destination.with_suffix(f"{destination.suffix}.part")
+    try:
+        with ZipFile(zip_path) as archive:
+            if filename not in archive.namelist():
+                available = ", ".join(archive.namelist())
+                raise FileNotFoundError(f"{filename!r} não existe em {zip_path.name}. Arquivos: {available}")
+            with archive.open(filename) as source, temporary.open("wb") as output:
+                copyfileobj(source, output, length=1024 * 1024)
+        temporary.replace(destination)
+    except (BadZipFile, OSError):
+        temporary.unlink(missing_ok=True)
+        raise
+    return destination
 
 
-if __name__ == "__main__":
-    zip_path: Path = download_file(url=URL, filename=ZIP_FILENAME)
-    csv_path = extract_zip_file(zip_path=zip_path, filename=ZIP_FILENAME)
-    print(f"Save in: {csv_path}")
+def ensure_data_file(force: bool = False) -> Path:
+    if not force and _is_current(CSV_FILE):
+        return CSV_FILE
+    zip_path = download_file(ZIP_URL, ZIP_FILENAME)
+    return extract_zip_file(zip_path, CSV_FILE.name)
+
+
+def extract_zip() -> Path:
+    return ensure_data_file()
